@@ -4,11 +4,10 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 
 export default function IndexPage() {
-  // add a highscore
-
   const [msg, setMsg] = useState("");
   const [diamonds, setDiamonds] = useState<string | null>(null);
   const [highscore, setHighscore] = useState<string | null>(null);
+  const [lastRiskTime, setLastRiskTime] = useState<number>(0);
 
   useEffect(() => {
     const storedDiamonds = localStorage.getItem("diamonds") || "0";
@@ -28,6 +27,15 @@ export default function IndexPage() {
   };
 
   function riskDiamond(numberOfDiamonds: number) {
+    const currentTime = Date.now();
+
+    if (currentTime - lastRiskTime < 500) {
+      setMsg("Please wait a second before trying again.");
+      return;
+    }
+
+    setLastRiskTime(currentTime);
+
     if (!diamonds) return;
     const parsedDiamonds = parseInt(diamonds);
     const riskFactor = numberOfDiamonds / 100;
@@ -63,7 +71,7 @@ export default function IndexPage() {
       <p>Diamonds: {diamonds}</p>
       <p>{msg}</p>
       <p>Rob a bank with:</p>
-      <div className="flex gap-4">
+      <div className="flex gap-4 flex-wrap">
         <Button onClick={() => riskDiamond(1)}>1 diamond</Button>
         <Button onClick={() => riskDiamond(5)}>5 diamonds</Button>
         <Button onClick={() => riskDiamond(10)}>10 diamonds</Button>
@@ -73,3 +81,4 @@ export default function IndexPage() {
     </section>
   );
 }
+
